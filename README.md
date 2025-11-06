@@ -4,7 +4,7 @@
 
 ## 功能特性
 
-- ✅ 接入 2 个 RSS 资讯源（Hacker News、Product Hunt）
+- ✅ 接入 6 个 RSS 资讯源（Hacker News、Product Hunt、TechCrunch、The Verge、36氪、少数派）
 - ✅ 三向滑动交互（上滑=行动，右滑=观察，左滑=归档）
 - ✅ 持久化存储分拣结果（SQLite）
 - ✅ 可解释的去重方法（标题/文本相似度）

@@ -33,10 +33,13 @@ export async function articleRoutes(fastify) {
   // 同步RSS源
   fastify.post('/sync', async (request, reply) => {
     const db = getDB();
+    console.log('开始同步 RSS...');
     const newArticles = await fetchArticlesFromRSS();
+    console.log(`获取到 ${newArticles.length} 条新文章`);
     
     // 获取现有文章用于去重
     const existingArticles = db.prepare('SELECT * FROM articles').all();
+    console.log(`数据库中已有 ${existingArticles.length} 条文章`);
     
     let added = 0;
     let skipped = 0;
@@ -81,10 +84,13 @@ export async function articleRoutes(fastify) {
         // 可能是唯一约束冲突
         if (error.code !== 'SQLITE_CONSTRAINT_UNIQUE') {
           console.error('Error inserting article:', error);
+          console.error('Article:', article.title);
         }
         skipped++;
       }
     }
+    
+    console.log(`同步完成：新增 ${added} 条，跳过 ${skipped} 条`);
     
     return {
       success: true,

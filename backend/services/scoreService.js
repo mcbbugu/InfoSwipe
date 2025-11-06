@@ -67,7 +67,10 @@ function scoreSource(source) {
   const sourceScores = {
     'Hacker News': 20,
     'Product Hunt': 18,
-    'TechCrunch': 15,
+    'TechCrunch': 17,
+    'The Verge': 16,
+    '36氪': 15,
+    '少数派': 15,
     'Medium': 12,
     'default': 10
   };
