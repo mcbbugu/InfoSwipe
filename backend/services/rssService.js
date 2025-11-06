@@ -13,9 +13,9 @@ const parser = new Parser({
   }
 });
 
-// RSS源配置（中文源优先）
+// RSS源配置（精简版，提升同步速度）
 const RSS_SOURCES = [
-  // 中文科技媒体（优先）
+  // 中文科技媒体（保留3个）
   {
     name: '36氪',
     url: 'https://www.36kr.com/feed',
@@ -31,45 +31,15 @@ const RSS_SOURCES = [
     url: 'https://www.huxiu.com/rss/0.xml',
     type: 'rss'
   },
-  {
-    name: '极客公园',
-    url: 'https://www.geekpark.net/rss',
-    type: 'rss'
-  },
-  {
-    name: '界面新闻',
-    url: 'https://www.jiemian.com/rss/tech.xml',
-    type: 'rss'
-  },
-  {
-    name: '掘金',
-    url: 'https://juejin.cn/rss',
-    type: 'rss'
-  },
-  {
-    name: 'V2EX',
-    url: 'https://www.v2ex.com/index.xml',
-    type: 'rss'
-  },
-  // 英文科技媒体
-  {
-    name: 'TechCrunch',
-    url: 'https://techcrunch.com/feed/',
-    type: 'rss'
-  },
-  {
-    name: 'The Verge',
-    url: 'https://www.theverge.com/rss/index.xml',
-    type: 'rss'
-  },
+  // 英文科技媒体（保留2个）
   {
     name: 'Hacker News',
     url: 'https://hnrss.org/frontpage',
     type: 'rss'
   },
   {
-    name: 'Product Hunt',
-    url: 'https://www.producthunt.com/feed',
+    name: 'TechCrunch',
+    url: 'https://techcrunch.com/feed/',
     type: 'rss'
   }
 ];
