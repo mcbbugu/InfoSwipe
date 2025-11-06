@@ -37,21 +37,6 @@ const RSS_SOURCES = [
     type: 'rss'
   },
   {
-    name: '爱范儿',
-    url: 'https://www.ifanr.com/feed',
-    type: 'rss'
-  },
-  {
-    name: '钛媒体',
-    url: 'https://www.tmtpost.com/rss.xml',
-    type: 'rss'
-  },
-  {
-    name: '品玩',
-    url: 'https://www.pingwest.com/feed',
-    type: 'rss'
-  },
-  {
     name: '界面新闻',
     url: 'https://www.jiemian.com/rss/tech.xml',
     type: 'rss'
@@ -77,16 +62,16 @@ const RSS_SOURCES = [
     url: 'https://www.theverge.com/rss/index.xml',
     type: 'rss'
   },
-  // {
-  //   name: 'Hacker News',
-  //   url: 'https://hnrss.org/frontpage',
-  //   type: 'rss'
-  // },
-  // {
-  //   name: 'Product Hunt',
-  //   url: 'https://www.producthunt.com/feed',
-  //   type: 'rss'
-  // }
+  {
+    name: 'Hacker News',
+    url: 'https://hnrss.org/frontpage',
+    type: 'rss'
+  },
+  {
+    name: 'Product Hunt',
+    url: 'https://www.producthunt.com/feed',
+    type: 'rss'
+  }
 ];
 
 /**

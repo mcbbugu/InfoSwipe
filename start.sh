@@ -29,14 +29,14 @@ cleanup() {
 # 注册清理函数
 trap cleanup INT TERM
 
-# 启动后端
-echo "📦 启动后端服务..."
+# 启动后端（开发模式，支持热重载）
+echo "📦 启动后端服务（开发模式，支持热重载）..."
 cd backend
 if [ ! -d "node_modules" ]; then
     echo "安装后端依赖..."
     npm install
 fi
-npm start > ../backend.log 2>&1 &
+npm run dev > ../backend.log 2>&1 &
 BACKEND_PID=$!
 cd ..
 

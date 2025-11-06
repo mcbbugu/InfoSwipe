@@ -1,18 +1,65 @@
 <template>
   <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
     <!-- 操作栏 -->
-    <div class="mb-6 flex justify-between items-center">
-      <div>
-        <h2 class="text-2xl font-bold text-gray-900">资讯分拣</h2>
-        <p class="text-gray-600 mt-1">上滑=行动，右滑=观察，左滑=归档</p>
+    <div class="mb-6 flex justify-between items-start">
+      <div class="flex-1">
+        <h1 class="text-3xl font-bold bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent mb-2">
+          资讯分拣
+        </h1>
+        <p class="text-sm text-gray-500 font-medium">快速决策，高效管理</p>
       </div>
       <button
         @click="syncArticles"
         :disabled="syncing"
-        class="px-4 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+        class="px-5 py-2.5 bg-gradient-to-r from-blue-500 to-blue-600 text-white rounded-lg hover:from-blue-600 hover:to-blue-700 disabled:opacity-50 disabled:cursor-not-allowed transition-all shadow-md hover:shadow-lg font-medium"
       >
-        {{ syncing ? '同步中...' : '同步RSS' }}
+        <span v-if="syncing" class="flex items-center gap-2">
+          <svg class="animate-spin h-4 w-4" fill="none" viewBox="0 0 24 24">
+            <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+            <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+          </svg>
+          同步中...
+        </span>
+        <span v-else class="flex items-center gap-2">
+          <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
+          </svg>
+          同步 RSS
+        </span>
       </button>
+    </div>
+
+    <!-- 操作提示（优雅设计） -->
+    <div v-if="articles.length > 0" class="mb-6 bg-gradient-to-r from-blue-50 via-purple-50 to-pink-50 rounded-xl p-4 border border-blue-100 shadow-sm">
+      <div class="flex items-center justify-center gap-6 flex-wrap">
+        <div class="flex items-center gap-2 text-sm text-gray-700 font-medium">
+          <svg class="w-5 h-5 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+          </svg>
+          <span>滑动卡片进行分类：</span>
+        </div>
+        <div class="flex items-center gap-1 px-3 py-1.5 bg-green-100 rounded-lg">
+          <svg class="w-4 h-4 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 10l7-7m0 0l7 7m-7-7v18" />
+          </svg>
+          <span class="text-xs font-semibold text-green-700">上滑</span>
+          <span class="text-xs text-green-600 ml-1">= 行动</span>
+        </div>
+        <div class="flex items-center gap-1 px-3 py-1.5 bg-blue-100 rounded-lg">
+          <svg class="w-4 h-4 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" />
+          </svg>
+          <span class="text-xs font-semibold text-blue-700">右滑</span>
+          <span class="text-xs text-blue-600 ml-1">= 观察</span>
+        </div>
+        <div class="flex items-center gap-1 px-3 py-1.5 bg-gray-100 rounded-lg">
+          <svg class="w-4 h-4 text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7" />
+          </svg>
+          <span class="text-xs font-semibold text-gray-700">左滑</span>
+          <span class="text-xs text-gray-600 ml-1">= 归档</span>
+        </div>
+      </div>
     </div>
 
     <!-- 消息提示 -->
@@ -28,16 +75,24 @@
     <div class="relative" style="height: 600px;">
       <div v-if="articles.length === 0 && !loading" class="text-center py-20">
         <div class="mb-4">
-          <div class="text-6xl mb-4">🎉</div>
-          <p class="text-gray-700 text-xl font-semibold mb-2">太棒了！</p>
-          <p class="text-gray-500 text-lg mb-1">所有文章都已处理完毕</p>
+          <div class="text-6xl mb-4">{{ hasAnyArticles ? '🎉' : '📰' }}</div>
+          <p class="text-gray-700 text-xl font-semibold mb-2">
+            {{ hasAnyArticles ? '太棒了！' : '欢迎使用 InfoSwipe' }}
+          </p>
+          <p class="text-gray-500 text-lg mb-1">
+            {{ hasAnyArticles ? '所有文章都已处理完毕' : '还没有文章，快来同步 RSS 吧' }}
+          </p>
           <p class="text-gray-400 text-sm">点击下方按钮同步 RSS 获取新文章</p>
         </div>
         <button
           @click="syncArticles"
-          class="mt-6 px-6 py-3 bg-blue-500 text-white rounded-lg hover:bg-blue-600 transition-colors font-medium"
+          :disabled="syncing"
+          class="mt-6 px-6 py-3 bg-gradient-to-r from-blue-500 to-blue-600 text-white rounded-lg hover:from-blue-600 hover:to-blue-700 disabled:opacity-50 disabled:cursor-not-allowed transition-all shadow-md hover:shadow-lg font-medium flex items-center gap-2 mx-auto"
         >
-          🔄 同步 RSS 获取新文章
+          <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
+          </svg>
+          同步 RSS 获取新文章
         </button>
       </div>
 
@@ -71,31 +126,6 @@
       :article="modalArticle || {}"
       @close="closeArticleModal"
     />
-
-      <!-- 操作提示 -->
-      <div v-if="articles.length > 0" class="mt-12 flex justify-center items-center space-x-12">
-        <div class="flex flex-col items-center group">
-          <div class="w-16 h-16 rounded-full bg-gray-100 flex items-center justify-center text-2xl mb-2 group-hover:bg-gray-200 transition-colors">
-            ⬅️
-          </div>
-          <div class="text-sm font-medium text-gray-700">归档</div>
-          <div class="text-xs text-gray-500 mt-1">左滑</div>
-        </div>
-        <div class="flex flex-col items-center group">
-          <div class="w-16 h-16 rounded-full bg-green-100 flex items-center justify-center text-2xl mb-2 group-hover:bg-green-200 transition-colors">
-            ⬆️
-          </div>
-          <div class="text-sm font-medium text-green-700">行动</div>
-          <div class="text-xs text-gray-500 mt-1">上滑</div>
-        </div>
-        <div class="flex flex-col items-center group">
-          <div class="w-16 h-16 rounded-full bg-blue-100 flex items-center justify-center text-2xl mb-2 group-hover:bg-blue-200 transition-colors">
-            ➡️
-          </div>
-          <div class="text-sm font-medium text-blue-700">观察</div>
-          <div class="text-xs text-gray-500 mt-1">右滑</div>
-        </div>
-      </div>
     </div>
   </div>
 </template>
@@ -112,6 +142,7 @@ const syncing = ref(false)
 const message = ref({ text: '', type: '' })
 const cardRefs = ref({})
 const modalArticle = ref(null)
+const hasAnyArticles = ref(false) // 标记数据库中是否有任何文章
 const dragState = ref({
   active: false,
   articleId: null,
@@ -282,36 +313,60 @@ const loadArticles = async () => {
     const response = await axios.get(`${API_BASE}/articles?category=pending`)
     console.log('加载的文章数据:', response.data)
     if (response.data && response.data.articles) {
-    articles.value = response.data.articles.map(article => ({
-      ...article,
-      offsetX: 0,
-      offsetY: 0,
-      rotation: 0,
-      dragging: false,
-      scale: 1
-    }))
-    
-    // 重新设置拖动手势
-    nextTick(() => {
-      visibleArticles.value.forEach(article => {
-        const el = cardRefs.value[article.id]
-        if (el) {
-          // 清理旧的事件监听器
-          if (el._dragCleanup) {
-            el._dragCleanup()
+      articles.value = response.data.articles.map(article => ({
+        ...article,
+        offsetX: 0,
+        offsetY: 0,
+        rotation: 0,
+        dragging: false,
+        scale: 1
+      }))
+      
+      // 检查是否有任何文章（通过 stats API）
+      try {
+        const statsResponse = await axios.get(`${API_BASE}/stats`)
+        hasAnyArticles.value = (statsResponse.data.totalProcessed || 0) > 0 || 
+                               (statsResponse.data.categoryStats?.action || 0) > 0 ||
+                               (statsResponse.data.categoryStats?.observe || 0) > 0 ||
+                               (statsResponse.data.categoryStats?.archive || 0) > 0 ||
+                               articles.value.length > 0
+      } catch (e) {
+        // 如果获取 stats 失败，根据当前文章数量判断
+        hasAnyArticles.value = articles.value.length > 0
+      }
+      
+      // 重新设置拖动手势
+      nextTick(() => {
+        visibleArticles.value.forEach(article => {
+          const el = cardRefs.value[article.id]
+          if (el) {
+            // 清理旧的事件监听器
+            if (el._dragCleanup) {
+              el._dragCleanup()
+            }
+            setupDrag(el, article.id)
           }
-          setupDrag(el, article.id)
-        }
+        })
       })
-    })
       console.log('文章数量:', articles.value.length)
     } else {
       articles.value = []
+      // 检查是否有任何文章
+      try {
+        const statsResponse = await axios.get(`${API_BASE}/stats`)
+        hasAnyArticles.value = (statsResponse.data.totalProcessed || 0) > 0 || 
+                               (statsResponse.data.categoryStats?.action || 0) > 0 ||
+                               (statsResponse.data.categoryStats?.observe || 0) > 0 ||
+                               (statsResponse.data.categoryStats?.archive || 0) > 0
+      } catch (e) {
+        hasAnyArticles.value = false
+      }
     }
   } catch (error) {
     console.error('加载文章失败:', error)
     showMessage('加载文章失败，请刷新重试', 'error')
     articles.value = []
+    hasAnyArticles.value = false
   } finally {
     loading.value = false
   }

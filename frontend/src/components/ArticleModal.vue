@@ -4,13 +4,15 @@
     <div
       v-if="isOpen"
       class="fixed inset-0 z-50 overflow-y-auto"
-      @click.self="close"
     >
-      <!-- 背景遮罩 -->
-      <div class="fixed inset-0 bg-black bg-opacity-50 transition-opacity"></div>
+      <!-- 背景遮罩（可点击关闭） -->
+      <div 
+        class="fixed inset-0 bg-black bg-opacity-50 transition-opacity"
+        @click="close"
+      ></div>
       
       <!-- Modal 内容 -->
-      <div class="flex min-h-full items-center justify-center p-4">
+      <div class="relative flex min-h-full items-center justify-center p-4">
         <div
           class="relative bg-white rounded-xl shadow-xl max-w-3xl w-full max-h-[90vh] overflow-hidden flex flex-col"
           @click.stop

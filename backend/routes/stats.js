@@ -21,7 +21,7 @@ export async function statsRoutes(fastify) {
     
     // 最近操作（最近20条）
     const recentOperations = db.prepare(`
-      SELECT o.*, a.title, a.category
+      SELECT o.*, a.title, a.category, a.link, a.source, a.score
       FROM operations o
       JOIN articles a ON o.article_id = a.id
       ORDER BY o.created_at DESC
@@ -29,27 +29,37 @@ export async function statsRoutes(fastify) {
     `).all();
     
     // 各分类的文章列表（最近10条，包含完整信息）
+    // 使用 LEFT JOIN operations 来获取最后操作时间，按操作时间排序（最新的在最上面）
     const actionArticles = db.prepare(`
-      SELECT id, title, content, link, source, score, score_details, published_at, created_at
-      FROM articles
-      WHERE category = 'action'
-      ORDER BY created_at DESC
+      SELECT a.id, a.title, a.content, a.link, a.source, a.score, a.score_details, a.published_at, a.created_at,
+             MAX(o.created_at) as last_action_time
+      FROM articles a
+      LEFT JOIN operations o ON a.id = o.article_id
+      WHERE a.category = 'action'
+      GROUP BY a.id
+      ORDER BY COALESCE(MAX(o.created_at), a.created_at) DESC
       LIMIT 10
     `).all();
     
     const observeArticles = db.prepare(`
-      SELECT id, title, content, link, source, score, score_details, published_at, created_at
-      FROM articles
-      WHERE category = 'observe'
-      ORDER BY created_at DESC
+      SELECT a.id, a.title, a.content, a.link, a.source, a.score, a.score_details, a.published_at, a.created_at,
+             MAX(o.created_at) as last_action_time
+      FROM articles a
+      LEFT JOIN operations o ON a.id = o.article_id
+      WHERE a.category = 'observe'
+      GROUP BY a.id
+      ORDER BY COALESCE(MAX(o.created_at), a.created_at) DESC
       LIMIT 10
     `).all();
     
     const archiveArticles = db.prepare(`
-      SELECT id, title, content, link, source, score, score_details, published_at, created_at
-      FROM articles
-      WHERE category = 'archive'
-      ORDER BY created_at DESC
+      SELECT a.id, a.title, a.content, a.link, a.source, a.score, a.score_details, a.published_at, a.created_at,
+             MAX(o.created_at) as last_action_time
+      FROM articles a
+      LEFT JOIN operations o ON a.id = o.article_id
+      WHERE a.category = 'archive'
+      GROUP BY a.id
+      ORDER BY COALESCE(MAX(o.created_at), a.created_at) DESC
       LIMIT 10
     `).all();
     
