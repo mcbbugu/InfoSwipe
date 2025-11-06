@@ -67,6 +67,7 @@ function scoreContentLength(content) {
 
 /**
  * 计算来源权威性分数（0-20分）
+ * 根据来源的知名度和内容质量评分
  */
 function scoreSource(source) {
   const sourceScores = {
@@ -74,19 +75,10 @@ function scoreSource(source) {
     '36氪': 18,
     '少数派': 18,
     '虎嗅': 17,
-    '极客公园': 17,
-    '爱范儿': 16,
-    '钛媒体': 16,
-    '品玩': 16,
-    '界面新闻': 15,
-    '掘金': 15,
-    'V2EX': 14,
     // 英文科技媒体
     'Hacker News': 17,
-    'Product Hunt': 16,
     'TechCrunch': 17,
-    'The Verge': 16,
-    'Medium': 12,
+    // 默认分数（其他来源）
     'default': 10
   };
   
