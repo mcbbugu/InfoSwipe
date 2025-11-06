@@ -193,3 +193,50 @@
 - `frontend/src/views/SwipeView.vue`：滑动交互组件
 - 用户体验：滑动更流畅，视觉更简洁
 - 性能：减少卡顿，提升 60fps 渲染率
+
+---
+
+## 2024-12-19（晚上）
+
+### 用户体验优化
+
+#### 回顾页面信息增强
+- **最近操作显示优化**：
+  - 在「最近操作」列表中新增显示文章来源（source）
+  - 在「最近操作」列表中新增显示文章评分（score）
+  - 优化信息布局，使用 flex-wrap 适配不同屏幕尺寸
+  - 信息展示更完整，方便用户快速了解文章质量
+
+#### 首页交互优化
+- **卡片点击区域优化**：
+  - 修改 `ArticleCard.vue`，仅标题可点击打开 modal
+  - 内容预览区域不再可点击，避免与拖拽操作冲突
+  - 保持标题的 hover 效果和视觉反馈
+  - 提升拖拽操作的准确性和流畅度
+
+- **操作提示重新设计**：
+  - 将操作提示从底部移至顶部，更易被用户注意到
+  - 采用横幅式设计，使用渐变背景（蓝-紫-粉）
+  - 三个操作按钮采用颜色编码：
+    - 上滑=行动：绿色背景
+    - 右滑=观察：蓝色背景
+    - 左滑=归档：灰色背景
+  - 每个操作按钮包含图标和文字说明
+  - 仅在存在文章时显示，避免空状态干扰
+
+#### 技术细节
+- **后端修改**：
+  - `backend/routes/stats.js`：在 `recentOperations` 查询中添加 `a.source` 和 `a.score` 字段
+  - 通过 JOIN 查询获取完整的文章信息
+
+- **前端修改**：
+  - `frontend/src/views/ReviewView.vue`：在最近操作列表中显示来源和评分
+  - `frontend/src/components/ArticleCard.vue`：将点击事件从整个内容区域移至标题元素
+  - `frontend/src/views/SwipeView.vue`：重新设计操作提示 UI，使用横幅式布局
+
+#### 影响范围
+- `backend/routes/stats.js`：统计数据 API
+- `frontend/src/views/ReviewView.vue`：回顾页面
+- `frontend/src/components/ArticleCard.vue`：文章卡片组件
+- `frontend/src/views/SwipeView.vue`：首页滑动视图
+- 用户体验：信息展示更完整，交互更清晰，操作提示更明显

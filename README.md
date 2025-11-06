@@ -4,7 +4,7 @@
 
 ## 功能特性
 
-- ✅ 接入 6 个 RSS 资讯源（Hacker News、Product Hunt、TechCrunch、The Verge、36氪、少数派）
+- ✅ 接入 12 个 RSS 资讯源（36氪、少数派、虎嗅、极客公园、界面新闻、掘金、V2EX、TechCrunch、The Verge、Hacker News、Product Hunt 等）
 - ✅ 三向滑动交互（上滑=行动，右滑=观察，左滑=归档）
 - ✅ 持久化存储分拣结果（SQLite）
 - ✅ 可解释的去重方法（标题/文本相似度）
@@ -144,7 +144,7 @@ infoswipe/
 ## 注意事项
 
 - 首次运行会自动创建数据库和数据目录
-- RSS 同步会限制每个源最多 20 条文章
+- RSS 同步会限制每个源最多 30 条文章
 - 滑动操作需要移动距离超过 100px 才会触发分类
 
 ## 许可证
