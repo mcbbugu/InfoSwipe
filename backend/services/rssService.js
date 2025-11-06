@@ -43,7 +43,29 @@ const RSS_SOURCES = [
 function cleanHtml(html) {
   if (!html) return '';
   const root = parse(html);
-  return root.text.trim();
+  let text = root.text.trim();
+  
+  // 过滤常见的无意义文本模式
+  const meaninglessPatterns = [
+    /^Discussion\s*\|\s*Link$/i,
+    /^View\s+Discussion$/i,
+    /^Read\s+more$/i,
+    /^Continue\s+reading$/i,
+    /^Click\s+here$/i,
+    /^Link$/i,
+    /^Discussion$/i,
+    /^\s*[|]\s*$/,
+    /^\s*-\s*$/,
+  ];
+  
+  // 如果匹配到无意义模式，返回空字符串
+  for (const pattern of meaninglessPatterns) {
+    if (pattern.test(text)) {
+      return '';
+    }
+  }
+  
+  return text;
 }
 
 /**
@@ -72,9 +94,16 @@ export async function fetchArticlesFromRSS() {
         // 如果内容太短，尝试从 description 获取
         if (content.length < 100 && item.description) {
           const descContent = cleanHtml(item.description);
-          if (descContent.length > content.length) {
+          // 只有当清洗后的内容有意义时才使用（长度大于10且不是无意义文本）
+          if (descContent.length > 10 && descContent.length > content.length) {
             content = descContent;
           }
+        }
+        
+        // 如果清洗后内容仍然为空或太短，设置为空字符串
+        // 前端会显示"暂无内容预览"
+        if (content.length < 10) {
+          content = '';
         }
         
         const article = {
