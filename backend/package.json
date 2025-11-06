@@ -1,0 +1,23 @@
+{
+  "name": "infoswipe-backend",
+  "version": "1.0.0",
+  "description": "InfoSwipe Backend API",
+  "main": "index.js",
+  "type": "module",
+  "scripts": {
+    "start": "node index.js",
+    "dev": "node --watch index.js"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "@fastify/cors": "^10.0.1",
+    "better-sqlite3": "^12.4.1",
+    "fastify": "^5.1.0",
+    "node-html-parser": "^7.0.1",
+    "rss-parser": "^3.13.0",
+    "string-similarity": "^4.0.4"
+  },
+  "devDependencies": {}
+}
