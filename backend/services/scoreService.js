@@ -8,10 +8,15 @@
  */
 
 const KEYWORDS = [
+  // 英文关键词
   'ai', 'artificial intelligence', 'machine learning', 'ml', 'deep learning',
   'tech', 'technology', 'startup', 'product', 'innovation',
   'code', 'programming', 'developer', 'software', 'engineering',
-  'design', 'ux', 'ui', 'user experience'
+  'design', 'ux', 'ui', 'user experience',
+  // 中文关键词
+  '人工智能', 'AI', '机器学习', '深度学习', '科技', '技术',
+  '创业', '产品', '创新', '代码', '编程', '开发者',
+  '软件', '工程', '设计', '用户体验', '互联网', '数字化'
 ];
 
 /**
@@ -65,12 +70,22 @@ function scoreContentLength(content) {
  */
 function scoreSource(source) {
   const sourceScores = {
-    'Hacker News': 20,
-    'Product Hunt': 18,
+    // 中文科技媒体（优先，评分较高）
+    '36氪': 18,
+    '少数派': 18,
+    '虎嗅': 17,
+    '极客公园': 17,
+    '爱范儿': 16,
+    '钛媒体': 16,
+    '品玩': 16,
+    '界面新闻': 15,
+    '掘金': 15,
+    'V2EX': 14,
+    // 英文科技媒体
+    'Hacker News': 17,
+    'Product Hunt': 16,
     'TechCrunch': 17,
     'The Verge': 16,
-    '36氪': 15,
-    '少数派': 15,
     'Medium': 12,
     'default': 10
   };

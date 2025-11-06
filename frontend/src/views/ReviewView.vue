@@ -37,10 +37,31 @@
             :key="article.id"
             class="mb-4 p-3 border rounded-lg hover:bg-gray-50 transition-colors"
           >
-            <div class="font-medium text-sm text-gray-900 mb-1">{{ article.title }}</div>
-            <div class="flex justify-between items-center text-xs text-gray-500">
-              <span>{{ article.source }}</span>
-              <span class="text-blue-600">评分: {{ article.score }}</span>
+            <div class="font-medium text-sm text-gray-900 mb-2">{{ article.title }}</div>
+            <div class="flex justify-between items-center mb-2">
+              <span class="text-xs text-gray-500">{{ article.source }}</span>
+              <span class="text-xs text-blue-600">评分: {{ article.score }}</span>
+            </div>
+            <div class="flex gap-2 mt-2">
+              <button
+                v-if="article.content"
+                @click="openArticleModal(article)"
+                class="text-xs text-blue-600 hover:text-blue-800 hover:underline"
+              >
+                阅读全文
+              </button>
+              <a
+                v-if="article.link"
+                :href="article.link"
+                target="_blank"
+                rel="noopener noreferrer"
+                class="text-xs text-blue-600 hover:text-blue-800 hover:underline flex items-center gap-1"
+              >
+                查看原文
+                <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" />
+                </svg>
+              </a>
             </div>
           </div>
         </div>
@@ -60,10 +81,31 @@
             :key="article.id"
             class="mb-4 p-3 border rounded-lg hover:bg-gray-50 transition-colors"
           >
-            <div class="font-medium text-sm text-gray-900 mb-1">{{ article.title }}</div>
-            <div class="flex justify-between items-center text-xs text-gray-500">
-              <span>{{ article.source }}</span>
-              <span class="text-blue-600">评分: {{ article.score }}</span>
+            <div class="font-medium text-sm text-gray-900 mb-2">{{ article.title }}</div>
+            <div class="flex justify-between items-center mb-2">
+              <span class="text-xs text-gray-500">{{ article.source }}</span>
+              <span class="text-xs text-blue-600">评分: {{ article.score }}</span>
+            </div>
+            <div class="flex gap-2 mt-2">
+              <button
+                v-if="article.content"
+                @click="openArticleModal(article)"
+                class="text-xs text-blue-600 hover:text-blue-800 hover:underline"
+              >
+                阅读全文
+              </button>
+              <a
+                v-if="article.link"
+                :href="article.link"
+                target="_blank"
+                rel="noopener noreferrer"
+                class="text-xs text-blue-600 hover:text-blue-800 hover:underline flex items-center gap-1"
+              >
+                查看原文
+                <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" />
+                </svg>
+              </a>
             </div>
           </div>
         </div>
@@ -79,14 +121,35 @@
             暂无文章
           </div>
           <div
-            v-for="article in stats.articlesByCategory?.archive || []"
+            v-for="article in stats.articlesByCategory?.action || []"
             :key="article.id"
             class="mb-4 p-3 border rounded-lg hover:bg-gray-50 transition-colors"
           >
-            <div class="font-medium text-sm text-gray-900 mb-1">{{ article.title }}</div>
-            <div class="flex justify-between items-center text-xs text-gray-500">
-              <span>{{ article.source }}</span>
-              <span class="text-blue-600">评分: {{ article.score }}</span>
+            <div class="font-medium text-sm text-gray-900 mb-2">{{ article.title }}</div>
+            <div class="flex justify-between items-center mb-2">
+              <span class="text-xs text-gray-500">{{ article.source }}</span>
+              <span class="text-xs text-blue-600">评分: {{ article.score }}</span>
+            </div>
+            <div class="flex gap-2 mt-2">
+              <button
+                v-if="article.content"
+                @click="openArticleModal(article)"
+                class="text-xs text-blue-600 hover:text-blue-800 hover:underline"
+              >
+                阅读全文
+              </button>
+              <a
+                v-if="article.link"
+                :href="article.link"
+                target="_blank"
+                rel="noopener noreferrer"
+                class="text-xs text-blue-600 hover:text-blue-800 hover:underline flex items-center gap-1"
+              >
+                查看原文
+                <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" />
+                </svg>
+              </a>
             </div>
           </div>
         </div>
@@ -130,12 +193,20 @@
         </div>
       </div>
     </div>
+
+    <!-- 文章详情 Modal -->
+    <ArticleModal
+      :is-open="modalArticle !== null"
+      :article="modalArticle || {}"
+      @close="closeArticleModal"
+    />
   </div>
 </template>
 
 <script setup>
 import { ref, onMounted } from 'vue'
 import axios from 'axios'
+import ArticleModal from '../components/ArticleModal.vue'
 
 const stats = ref({
   categoryStats: {},
@@ -143,8 +214,17 @@ const stats = ref({
   recentOperations: [],
   articlesByCategory: {}
 })
+const modalArticle = ref(null)
 
 const API_BASE = '/api'
+
+const openArticleModal = (article) => {
+  modalArticle.value = article
+}
+
+const closeArticleModal = () => {
+  modalArticle.value = null
+}
 
 const loadStats = async () => {
   try {

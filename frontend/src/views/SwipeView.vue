@@ -62,8 +62,15 @@
         }"
         class="select-none"
       >
-        <ArticleCard :article="article" />
+        <ArticleCard :article="article" @read-full="openArticleModal(article)" />
       </div>
+
+    <!-- 文章详情 Modal -->
+    <ArticleModal
+      :is-open="modalArticle !== null"
+      :article="modalArticle || {}"
+      @close="closeArticleModal"
+    />
 
       <!-- 操作提示 -->
       <div v-if="articles.length > 0" class="mt-12 flex justify-center items-center space-x-12">
@@ -97,12 +104,14 @@
 import { ref, computed, onMounted, nextTick, onUnmounted } from 'vue'
 import axios from 'axios'
 import ArticleCard from '../components/ArticleCard.vue'
+import ArticleModal from '../components/ArticleModal.vue'
 
 const articles = ref([])
 const loading = ref(false)
 const syncing = ref(false)
 const message = ref({ text: '', type: '' })
 const cardRefs = ref({})
+const modalArticle = ref(null)
 const dragState = ref({
   active: false,
   articleId: null,
@@ -361,6 +370,14 @@ const categorizeArticle = async (articleId, category, action) => {
       resetCardPosition(article)
     }
   }
+}
+
+const openArticleModal = (article) => {
+  modalArticle.value = article
+}
+
+const closeArticleModal = () => {
+  modalArticle.value = null
 }
 
 onMounted(() => {

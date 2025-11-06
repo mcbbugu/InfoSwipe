@@ -19,32 +19,11 @@
       {{ article.title }}
     </h3>
 
-    <!-- 内容预览/完整内容 -->
+    <!-- 内容预览 -->
     <div v-if="hasContent" class="mb-4">
-      <p 
-        class="text-gray-600 text-sm leading-relaxed whitespace-pre-wrap"
-        :class="isExpanded ? '' : 'line-clamp-4'"
-      >
+      <p class="text-gray-600 text-sm leading-relaxed line-clamp-4">
         {{ article.content }}
       </p>
-      <button
-        v-if="needsExpand"
-        @click="toggleExpand"
-        @mousedown.stop
-        @touchstart.stop
-        class="mt-2 text-xs text-blue-600 hover:text-blue-800 hover:underline flex items-center gap-1"
-      >
-        {{ isExpanded ? '收起' : '展开全文' }}
-        <svg 
-          class="w-3 h-3 transition-transform"
-          :class="{ 'rotate-180': isExpanded }"
-          fill="none" 
-          stroke="currentColor" 
-          viewBox="0 0 24 24"
-        >
-          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
-        </svg>
-      </button>
     </div>
     <div v-else class="mb-4">
       <p class="text-gray-400 text-sm italic">
@@ -69,25 +48,38 @@
       <div class="text-xs text-gray-400">
         {{ formatDate(article.published_at) }}
       </div>
-      <a
-        v-if="article.link"
-        :href="article.link"
-        target="_blank"
-        rel="noopener noreferrer"
-        @click.stop
-        class="text-xs text-blue-600 hover:text-blue-800 hover:underline flex items-center gap-1"
-      >
-        查看原文
-        <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" />
-        </svg>
-      </a>
+      <div class="flex gap-2">
+        <button
+          v-if="hasContent"
+          @click="$emit('readFull')"
+          @mousedown.stop
+          @touchstart.stop
+          class="text-xs text-blue-600 hover:text-blue-800 hover:underline flex items-center gap-1"
+        >
+          阅读全文
+        </button>
+        <a
+          v-if="article.link"
+          :href="article.link"
+          target="_blank"
+          rel="noopener noreferrer"
+          @click.stop
+          class="text-xs text-blue-600 hover:text-blue-800 hover:underline flex items-center gap-1"
+        >
+          查看原文
+          <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" />
+          </svg>
+        </a>
+      </div>
     </div>
   </div>
 </template>
 
 <script setup>
-import { computed, ref } from 'vue'
+import { computed } from 'vue'
+
+defineEmits(['readFull'])
 
 const props = defineProps({
   article: {
@@ -95,8 +87,6 @@ const props = defineProps({
     required: true
   }
 })
-
-const isExpanded = ref(false)
 
 // 确保 score_details 是对象
 const scoreDetails = computed(() => {
@@ -116,17 +106,6 @@ const hasContent = computed(() => {
   const content = props.article.content || ''
   return content.trim().length > 0
 })
-
-// 判断内容是否需要展开（粗略估算：4行约200字符）
-const needsExpand = computed(() => {
-  const content = props.article.content || ''
-  return content.length > 200
-})
-
-const toggleExpand = (e) => {
-  e.stopPropagation()
-  isExpanded.value = !isExpanded.value
-}
 
 const getScoreColorClass = (score) => {
   if (score >= 80) return 'bg-green-100 text-green-700'

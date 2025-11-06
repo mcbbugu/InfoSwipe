@@ -28,9 +28,9 @@ export async function statsRoutes(fastify) {
       LIMIT 20
     `).all();
     
-    // 各分类的文章列表（最近10条）
+    // 各分类的文章列表（最近10条，包含完整信息）
     const actionArticles = db.prepare(`
-      SELECT id, title, source, score, created_at
+      SELECT id, title, content, link, source, score, score_details, published_at, created_at
       FROM articles
       WHERE category = 'action'
       ORDER BY created_at DESC
@@ -38,7 +38,7 @@ export async function statsRoutes(fastify) {
     `).all();
     
     const observeArticles = db.prepare(`
-      SELECT id, title, source, score, created_at
+      SELECT id, title, content, link, source, score, score_details, published_at, created_at
       FROM articles
       WHERE category = 'observe'
       ORDER BY created_at DESC
@@ -46,12 +46,25 @@ export async function statsRoutes(fastify) {
     `).all();
     
     const archiveArticles = db.prepare(`
-      SELECT id, title, source, score, created_at
+      SELECT id, title, content, link, source, score, score_details, published_at, created_at
       FROM articles
       WHERE category = 'archive'
       ORDER BY created_at DESC
       LIMIT 10
     `).all();
+    
+    // 解析评分详情
+    [actionArticles, observeArticles, archiveArticles].forEach(articles => {
+      articles.forEach(article => {
+        if (article.score_details) {
+          try {
+            article.score_details = JSON.parse(article.score_details);
+          } catch (e) {
+            article.score_details = null;
+          }
+        }
+      });
+    });
     
     return {
       categoryStats: categoryStats.reduce((acc, item) => {

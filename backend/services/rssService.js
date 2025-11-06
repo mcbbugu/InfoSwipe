@@ -1,20 +1,72 @@
 import Parser from 'rss-parser';
 import { parse } from 'node-html-parser';
 
-const parser = new Parser();
+// 配置自定义字段映射，支持更多 RSS 格式
+const parser = new Parser({
+  customFields: {
+    item: [
+      ['content:encoded', 'contentEncoded'],
+      ['description', 'description'],
+      ['content', 'content'],
+      ['summary', 'summary'],
+    ]
+  }
+});
 
-// RSS源配置
+// RSS源配置（中文源优先）
 const RSS_SOURCES = [
+  // 中文科技媒体（优先）
   {
-    name: 'Hacker News',
-    url: 'https://hnrss.org/frontpage',
+    name: '36氪',
+    url: 'https://www.36kr.com/feed',
     type: 'rss'
   },
   {
-    name: 'Product Hunt',
-    url: 'https://www.producthunt.com/feed',
+    name: '少数派',
+    url: 'https://sspai.com/rss',
     type: 'rss'
   },
+  {
+    name: '虎嗅',
+    url: 'https://www.huxiu.com/rss/0.xml',
+    type: 'rss'
+  },
+  {
+    name: '极客公园',
+    url: 'https://www.geekpark.net/rss',
+    type: 'rss'
+  },
+  {
+    name: '爱范儿',
+    url: 'https://www.ifanr.com/feed',
+    type: 'rss'
+  },
+  {
+    name: '钛媒体',
+    url: 'https://www.tmtpost.com/rss.xml',
+    type: 'rss'
+  },
+  {
+    name: '品玩',
+    url: 'https://www.pingwest.com/feed',
+    type: 'rss'
+  },
+  {
+    name: '界面新闻',
+    url: 'https://www.jiemian.com/rss/tech.xml',
+    type: 'rss'
+  },
+  {
+    name: '掘金',
+    url: 'https://juejin.cn/rss',
+    type: 'rss'
+  },
+  {
+    name: 'V2EX',
+    url: 'https://www.v2ex.com/index.xml',
+    type: 'rss'
+  },
+  // 英文科技媒体
   {
     name: 'TechCrunch',
     url: 'https://techcrunch.com/feed/',
@@ -25,16 +77,16 @@ const RSS_SOURCES = [
     url: 'https://www.theverge.com/rss/index.xml',
     type: 'rss'
   },
-  {
-    name: '36氪',
-    url: 'https://www.36kr.com/feed',
-    type: 'rss'
-  },
-  {
-    name: '少数派',
-    url: 'https://sspai.com/feed',
-    type: 'rss'
-  }
+  // {
+  //   name: 'Hacker News',
+  //   url: 'https://hnrss.org/frontpage',
+  //   type: 'rss'
+  // },
+  // {
+  //   name: 'Product Hunt',
+  //   url: 'https://www.producthunt.com/feed',
+  //   type: 'rss'
+  // }
 ];
 
 /**
@@ -80,30 +132,56 @@ export async function fetchArticlesFromRSS() {
       const feed = await parser.parseURL(source.url);
       console.log(`${source.name} 获取成功，共 ${feed.items?.length || 0} 条`);
       
-      for (const item of feed.items.slice(0, 20)) { // 限制每个源20条
-        // 优先使用 content，然后是 contentSnippet，最后是 summary
+      let contentCount = 0;
+      let emptyCount = 0;
+      
+      for (const item of feed.items.slice(0, 30)) { // 限制每个源30条
+        // 按优先级尝试提取内容：content:encoded > content > contentSnippet > summary > description
         let content = '';
-        if (item.content) {
+        
+        // 1. 尝试 content:encoded（很多 RSS 源使用这个字段存储完整内容）
+        if (item.contentEncoded) {
+          content = cleanHtml(item.contentEncoded);
+        }
+        // 2. 尝试 content
+        else if (item.content) {
           content = cleanHtml(item.content);
-        } else if (item.contentSnippet) {
+        }
+        // 3. 尝试 contentSnippet
+        else if (item.contentSnippet) {
           content = cleanHtml(item.contentSnippet);
-        } else if (item.summary) {
+        }
+        // 4. 尝试 summary
+        else if (item.summary) {
           content = cleanHtml(item.summary);
         }
-        
-        // 如果内容太短，尝试从 description 获取
-        if (content.length < 100 && item.description) {
+        // 5. 最后尝试 description（通常包含摘要）
+        else if (item.description) {
           const descContent = cleanHtml(item.description);
-          // 只有当清洗后的内容有意义时才使用（长度大于10且不是无意义文本）
-          if (descContent.length > 10 && descContent.length > content.length) {
+          // 只有当清洗后的内容有意义时才使用（长度大于50字符，避免只是链接）
+          if (descContent.length > 50) {
             content = descContent;
           }
         }
         
-        // 如果清洗后内容仍然为空或太短，设置为空字符串
-        // 前端会显示"暂无内容预览"
-        if (content.length < 10) {
-          content = '';
+        // 过滤掉 URL 和链接文本
+        if (content) {
+          // 如果内容看起来像 URL，过滤掉
+          const urlPattern = /^https?:\/\/.+/i;
+          if (urlPattern.test(content.trim())) {
+            content = '';
+          }
+          // 如果内容太短（可能是链接文本），过滤掉
+          if (content.length < 50) {
+            content = '';
+          }
+        }
+        
+        // 统计
+        if (content && content.length >= 50) {
+          contentCount++;
+        } else {
+          emptyCount++;
         }
         
         const article = {
@@ -116,7 +194,7 @@ export async function fetchArticlesFromRSS() {
         
         allArticles.push(article);
       }
-      console.log(`${source.name} 处理完成，提取 ${feed.items.slice(0, 20).length} 条文章`);
+      console.log(`${source.name} 处理完成：共 ${feed.items.slice(0, 30).length} 条，有内容 ${contentCount} 条，无内容 ${emptyCount} 条`);
     } catch (error) {
       console.error(`❌ Error fetching ${source.name}:`, error.message);
       console.error(`   URL: ${source.url}`);
